@@ -15,7 +15,7 @@ namespace sweWebServer
         XmlDocument xml;
         SqlCommand cmd;
         string statement;
-        string test;
+        //string test;
 
         public DAL()
         {
@@ -31,7 +31,7 @@ namespace sweWebServer
             {
                 connection = new SqlConnection(
                     @"Data Source=.\SqlExpress;
-                    Initial Catalog=sweWebserver;
+                    Initial Catalog=sweDB;
                     Integrated Security=true;");
 
                 connection.Open();
