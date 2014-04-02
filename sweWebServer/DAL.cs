@@ -15,7 +15,7 @@ namespace sweWebServer
         XmlDocument xml;
         SqlCommand cmd;
         string statement;
-        //string test;
+       // string test;
 
         public DAL()
         {
@@ -62,9 +62,9 @@ namespace sweWebServer
         public void insert()
         {
             statement = "INSERT INTO table (name, information, other) VALUES (@name, @information, @other)";
-            cmd.Parameters.Add("@name", test);
-            cmd.Parameters.Add("@information", test);
-            cmd.Parameters.Add("@other", test);
+            cmd.Parameters.Add("@name", "test");
+            cmd.Parameters.Add("@information","test");
+            cmd.Parameters.Add("@other", "test");
             cmd.ExecuteNonQuery();
         }
 
