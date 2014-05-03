@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BL.cs" />
     <Compile Include="DAL.cs" />
     <Compile Include="HTTPHeader.cs" />
     <Compile Include="HttpProcessor.cs" />
