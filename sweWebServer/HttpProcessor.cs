@@ -18,7 +18,8 @@ namespace sweWebServer
         public StreamWriter outputStream;
         private ArrayList _loadedPlugins;        
         public Hashtable httpHeaders = new Hashtable();
-        DAL access;
+        
+        BL business;
 
         int ContentLength;
 
@@ -27,7 +28,8 @@ namespace sweWebServer
             this.socket = s;
             this.srv = srv;
             myHead = new HTTPHeader();
-            access = new DAL();
+            
+            business = new BL();
         }
         
         public void process()
@@ -41,10 +43,12 @@ namespace sweWebServer
                 readHeaders();
                 
                 char[] ClientInput = new char[ContentLength];
-
+                
                 inputStream.ReadBlock(ClientInput, 0, ContentLength);
+                string message = new string(ClientInput);
 
-                string html = access.testtest(ClientInput.ToString());
+                //string html = access.testtest(ClientInput.ToString());
+                string html = business.DoRequest(message);
                 Console.Write(html);
 
                 outputStream.WriteLine("HTTP/1.1 200 OK");
