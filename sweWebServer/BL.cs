@@ -28,7 +28,7 @@ namespace sweWebServer
             xml.LoadXml(param);
 
             XmlElement root = xml.DocumentElement;
-            XmlNode type = root.ChildNodes[0];
+            XmlNode type = root.FirstChild;
 
             #region Search
             if (root.Name == "Search")
@@ -40,7 +40,11 @@ namespace sweWebServer
 
                     if (xnList.Count > 1)
                     {
-                        statement = "SELECT * FROM Kontaktdaten WHERE Vorname = @vorname AND Nachname = @nachname";
+                        statement = @"SELECT A.ID, A.Vorname, A.Nachname, A.Titel, A.Suffix, A.Wohnadresse, A.WohnPLZ, A.WohnOrt, A.Rechnungsadresse, A.RechnungsPLZ, A.RechnungsOrt, A. Lieferadresse, A.LieferPLZ, A.LieferOrt, A.Geburtsdatum, B.Firmenname, A.FirmenID 
+FROM Kontaktdaten A
+LEFT JOIN Kontaktdaten B
+ON A.FirmenID = B.ID
+WHERE A.Vorname LIKE @vorname AND A.Nachname LIKE @nachname";
                         cmd.Parameters.AddWithValue("@vorname", type.FirstChild.InnerText);
                         cmd.Parameters.AddWithValue("@nachname", type.FirstChild.InnerText);
                     }
@@ -49,13 +53,21 @@ namespace sweWebServer
                     {
                         if (type.FirstChild.Name == "Vorname")
                         {
-                            statement = "SELECT * FROM Kontaktdaten WHERE Vorname = @vorname";
+                            statement = @"SELECT A.ID, A.Vorname, A.Nachname, A.Titel, A.Suffix, A.Wohnadresse, A.WohnPLZ, A.WohnOrt, A.Rechnungsadresse, A.RechnungsPLZ, A.RechnungsOrt, A. Lieferadresse, A.LieferPLZ, A.LieferOrt, A.Geburtsdatum, B.Firmenname, A.FirmenID 
+FROM Kontaktdaten A
+LEFT JOIN Kontaktdaten B
+ON A.FirmenID = B.ID
+WHERE A.Vorname LIKE @vorname";
                             cmd.Parameters.AddWithValue("@vorname", type.FirstChild.InnerText);
                         }
 
                         else
                         {
-                            statement = "SELECT * FROM Kontaktdaten WHERE Nachname = @nachname";
+                            statement = @"SELECT A.ID, A.Vorname, A.Nachname, A.Titel, A.Suffix, A.Wohnadresse, A.WohnPLZ, A.WohnOrt, A.Rechnungsadresse, A.RechnungsPLZ, A.RechnungsOrt, A. Lieferadresse, A.LieferPLZ, A.LieferOrt, A.Geburtsdatum, B.Firmenname, A.FirmenID 
+FROM Kontaktdaten A
+LEFT JOIN Kontaktdaten B
+ON A.FirmenID = B.ID 
+WHERE A.Nachname LIKE @nachname";
                             cmd.Parameters.AddWithValue("@nachname", type.FirstChild.InnerText);
                         }
                     }
@@ -68,11 +80,15 @@ namespace sweWebServer
                     switch (search.Name)
                     {
                         case "Name":
-                            statement = "SELECT * FROM Kontaktdaten WHERE Firmenname = @name";
+                            statement = @"SELECT A.ID, A.Wohnadresse, A.WohnPLZ, A.WohnOrt, A.Rechnungsadresse, A.RechnungsPLZ, A.RechnungsOrt, A. Lieferadresse, A.LieferPLZ, A.LieferOrt, A.Firmenname, A.UID
+FROM Kontaktdaten A
+WHERE A.Firmenname LIKE @name";
                             cmd.Parameters.AddWithValue("@name", search.InnerText);
                             break;
                         case "UID":
-                            statement = "SELECT * FROM Kontaktdaten WHERE UID = @uid";
+                            statement = @"SELECT A.ID, A.Wohnadresse, A.WohnPLZ, A.WohnOrt, A.Rechnungsadresse, A.RechnungsPLZ, A.RechnungsOrt, A. Lieferadresse, A.LieferPLZ, A.LieferOrt, A.Firmenname, A.UID
+FROM Kontaktdaten A
+WHERE A.UID LIKE @uid";
                             cmd.Parameters.AddWithValue("@uid", search.InnerText);
                             break;
                         default:
@@ -82,14 +98,21 @@ namespace sweWebServer
                 else if (type.Name == "Rechnung")
                 {
                     searchType = 2;
-                    XmlNodeList xnList = type.SelectNodes("/");
-
-                    foreach (XmlNode xn in xnList)
+                    if (type.ChildNodes.Count < 2)
                     {
+                       statement = @"Select Rechnungen.ID, Kontaktdaten.Nachname, Rechnungen.fkZuKontaktID, Rechnungen.Datum, Rechnungen.Faelligkeit, Rechnungen.Kommentar, Rechnungen.Nachricht
+FROM Rechnungen JOIN Kontaktdaten ON Rechnungen.fkZuKontaktID = Kontaktdaten.ID WHERE Kontaktdaten.Nachname = @name";
+                       cmd.Parameters.AddWithValue("@name", type.FirstChild.InnerText); 
                     }
                 }
 
-                
+                else if (type.Name == "Firmen")
+                {
+                    searchType = 3;
+                    statement = "SELECT ID, Firmenname FROM Kontaktdaten WHERE Vorname IS NULL";
+                }
+                cmd.CommandText = statement;
+                return access.select(cmd, searchType);
             }
             #endregion
 
@@ -99,14 +122,43 @@ namespace sweWebServer
             }
             else if (root.Name == "Update")
             {
+                if (type.Name == "Person")
+                {
+                    XmlNodeList xnList = type.ChildNodes;
+                    statement = @"UPDATE Kontaktdaten SET 
+Vorname = @vorname, 
+Nachname = @nachname, 
+Titel = @titel, 
+Suffix = @suffix, 
+Geburtsdatum = @geburtsdatum, 
+FirmenID = @firmenid WHERE ID = @id";
+                    cmd.Parameters.AddWithValue("@vorname", xnList[1].InnerText);
+                    cmd.Parameters.AddWithValue("@nachname", xnList[2].InnerText);
+                    cmd.Parameters.AddWithValue("@titel", xnList[3].InnerText);
+                    cmd.Parameters.AddWithValue("@suffix", xnList[4].InnerText);
+                    cmd.Parameters.AddWithValue("@geburtsdatum", xnList[5].InnerText);
+                    cmd.Parameters.AddWithValue("@firmenid", xnList[6].InnerText);
+                    cmd.Parameters.AddWithValue("@id", Convert.ToInt32(xnList[0].InnerText));
+                }
 
+                else if(type.Name == "Firma")
+                {
+                    XmlNodeList xnList = type.ChildNodes;
+                    statement = @"UPDATE Kontaktdaten SET 
+Firmenname = @firmenname, 
+UID = @uid WHERE ID = @id";
+                    cmd.Parameters.AddWithValue("@firmenname", xnList[1].InnerText);
+                    cmd.Parameters.AddWithValue("@uid", xnList[2].InnerText);
+                    cmd.Parameters.AddWithValue("@id", Convert.ToInt32(xnList[0].InnerText));
+                }
+                cmd.CommandText = statement;
+                access.update(cmd);
             }
             else if (root.Name == "Delete")
             {
 
             }
-            cmd.CommandText = statement;
-            return access.select(cmd, searchType);
+            return "OK";
         }
     }
 }

@@ -68,8 +68,20 @@ namespace sweWebServer
             cmd.ExecuteNonQuery();
         }
 
-        public void update()
-        { }
+        public bool update(SqlCommand command)
+        {
+            try
+            {
+                command.Connection = connection;
+                command.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            
+        }
 
         public void delete()
         { }
@@ -91,6 +103,9 @@ namespace sweWebServer
                 case 2:
                     output = new XElement("Rechnungen");
                     break;
+                case 3:
+                    output = new XElement("Firmen");
+                    break;
                 default:
                     break;
             }
@@ -106,25 +121,69 @@ namespace sweWebServer
                             person.Add(new XElement("Vorname", reader[1]));
                             person.Add(new XElement("Nachname", reader[2]));
                             if (reader[3] != "NULL")                            
-                                person.Add(new XElement("Titel", reader[3]));
-                            
+                                person.Add(new XElement("Titel", reader[3]));                            
                                 person.Add(new XElement("Suffix", reader[4]));                            
                                 person.Add(new XElement("Adresse", reader[5]));
                                 person.Add(new XElement("PLZ", reader[6]));
                                 person.Add(new XElement("Ort", reader[7]));
+                                if (reader[8] != "NULL") 
+                                person.Add(new XElement("RechnungsAdresse", reader[8]));
+                                if (reader[9] != "NULL") 
+                                person.Add(new XElement("RechnungsPLZ", reader[9]));
+                                if (reader[10] != "NULL") 
+                                person.Add(new XElement("RechnungsOrt", reader[10]));
+                                if (reader[11] != "NULL") 
+                                person.Add(new XElement("LieferAdresse", reader[11]));
+                                if (reader[12] != "NULL") 
+                                person.Add(new XElement("LieferPLZ", reader[12]));
+                                if (reader[13] != "NULL") 
+                                person.Add(new XElement("LieferOrt", reader[13]));
+                                if (reader[14] != "NULL") 
+                                person.Add(new XElement("Geburtsdatum", reader[14]));
+                                if (reader[15] != "NULL") 
+                                person.Add(new XElement("Firma", reader[15]));
+                                if (reader[16] != "NULL") 
+                                person.Add(new XElement("FirmaID", reader[16]));
                                 output.Add(person);
                             break;
                         case 1:
                             XElement firma = new XElement("Firma");
                             firma.Add(new XElement("ID", reader[0]));
-                            firma.Add(new XElement("Adresse", reader[5]));
-                            firma.Add(new XElement("PLZ", reader[6]));                         
-                            firma.Add(new XElement("Ort", reader[7]));
-                            firma.Add(new XElement("Name", reader[15]));
-                            firma.Add(new XElement("UID", reader[16]));
+                            firma.Add(new XElement("Adresse", reader[1]));
+                            firma.Add(new XElement("PLZ", reader[2]));                         
+                            firma.Add(new XElement("Ort", reader[3]));                     
+                                if (reader[4] != "NULL")
+                                    firma.Add(new XElement("RechnungsAdresse", reader[4]));
+                                if (reader[5] != "NULL")
+                                    firma.Add(new XElement("RechnungsPLZ", reader[5]));
+                                if (reader[6] != "NULL")
+                                    firma.Add(new XElement("RechnungsOrt", reader[6]));
+                                if (reader[7] != "NULL")
+                                    firma.Add(new XElement("LieferAdresse", reader[7]));
+                                if (reader[8] != "NULL")
+                                    firma.Add(new XElement("LieferPLZ", reader[8]));
+                                if (reader[9] != "NULL")
+                                    firma.Add(new XElement("LieferOrt", reader[9]));                                
+                            firma.Add(new XElement("Name", reader[10]));
+                            firma.Add(new XElement("UID", reader[11]));
                                 output.Add(firma);
                             break;
                         case 2:
+                            XElement rechnung = new XElement("Rechnung");
+                            rechnung.Add(new XElement("ID", reader[0]));
+                            rechnung.Add(new XElement("Kundenname", reader[1]));
+                            rechnung.Add(new XElement("KundenID", reader[2]));
+                            rechnung.Add(new XElement("Date", reader[3]));
+                            rechnung.Add(new XElement("Due", reader[4]));
+                            rechnung.Add(new XElement("Kommentar", reader[5]));
+                            rechnung.Add(new XElement("Nachricht", reader[6]));
+                            output.Add(rechnung);
+                            break;
+                        case 3:
+                            XElement firm = new XElement("Firma");
+                            firm.Add(new XElement("ID", reader[0]));
+                            firm.Add(new XElement("Name", reader[1]));
+                            output.Add(firm);
                             break;
                         default:
                             break;
