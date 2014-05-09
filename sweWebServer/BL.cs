@@ -118,7 +118,39 @@ FROM Rechnungen JOIN Kontaktdaten ON Rechnungen.fkZuKontaktID = Kontaktdaten.ID 
 
             else if (root.Name == "Insert")
             {
+                if (type.Name == "Person")
+                {
+                    XmlNodeList xnList = type.ChildNodes;
+                    statement = @"INSERT INTO Kontaktdaten (Vorname, Nachname, Titel, Suffix, Geburtsdatum, FirmenID, Deleted)
+VALUES (@vorname,@nachname,@titel,@suffix,@geburtsdatum,@firmenid, 0)";
+/*Vorname = @vorname, 
+Nachname = @nachname, 
+Titel = @titel, 
+Suffix = @suffix, 
+Geburtsdatum = @geburtsdatum, 
+FirmenID = @firmenid";*/
+                    cmd.Parameters.AddWithValue("@vorname", xnList[1].InnerText);
+                    cmd.Parameters.AddWithValue("@nachname", xnList[2].InnerText);
+                    cmd.Parameters.AddWithValue("@titel", xnList[3].InnerText);
+                    cmd.Parameters.AddWithValue("@suffix", xnList[4].InnerText);
+                    cmd.Parameters.AddWithValue("@geburtsdatum", xnList[5].InnerText);
+                    cmd.Parameters.AddWithValue("@firmenid", xnList[6].InnerText);
+                    //cmd.Parameters.AddWithValue("@id", Convert.ToInt32(xnList[0].InnerText));
+                }
 
+                else if (type.Name == "Firma")
+                {
+                    XmlNodeList xnList = type.ChildNodes;
+                    statement = @"INSERT INTO Kontaktdaten (Firmenname, UID, Deleted)
+VALUES (@firmenname, @uid, 0)";
+/*Firmenname = @firmenname, 
+UID = @uid";*/
+                    cmd.Parameters.AddWithValue("@firmenname", xnList[1].InnerText);
+                    cmd.Parameters.AddWithValue("@uid", xnList[2].InnerText);
+                    //cmd.Parameters.AddWithValue("@id", Convert.ToInt32(xnList[0].InnerText));
+                }
+                cmd.CommandText = statement;
+                access.insert(cmd);
             }
             else if (root.Name == "Update")
             {

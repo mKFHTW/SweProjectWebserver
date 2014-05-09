@@ -29,7 +29,7 @@ namespace sweWebServer
             try
             {
                 connection = new SqlConnection(
-                    @"Data Source=.\SqlExpress;
+                    @"Data Source=localhost;
                     Initial Catalog=SweDB;
                     Integrated Security=true;");
 
@@ -59,13 +59,18 @@ namespace sweWebServer
             return output.ToString();
         }
 
-        public void insert()
+        public bool insert(SqlCommand command)
         {
-            statement = "INSERT INTO table (name, information, other) VALUES (@name, @information, @other)";
-            cmd.Parameters.Add("@name", "test");
-            cmd.Parameters.Add("@information","test");
-            cmd.Parameters.Add("@other", "test");
-            cmd.ExecuteNonQuery();
+            try
+            {
+                command.Connection = connection;
+                command.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         public bool update(SqlCommand command)
@@ -79,8 +84,7 @@ namespace sweWebServer
             catch (Exception)
             {
                 return false;
-            }
-            
+            }            
         }
 
         public void delete()
