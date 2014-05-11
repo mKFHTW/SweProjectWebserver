@@ -29,7 +29,7 @@ namespace sweWebServer
             try
             {
                 connection = new SqlConnection(
-                    @"Data Source=localhost;
+                    @"Data Source=.\SQLExpress;
                     Initial Catalog=SweDB;
                     Integrated Security=true;");
 
@@ -87,8 +87,19 @@ namespace sweWebServer
             }            
         }
 
-        public void delete()
-        { }
+        public bool delete(SqlCommand command)
+        {
+            try
+            {
+                command.Connection = connection;
+                command.ExecuteNonQuery();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }     
+        }
 
         public string select(SqlCommand command, int type)
         {
@@ -109,6 +120,9 @@ namespace sweWebServer
                     break;
                 case 3:
                     output = new XElement("Firmen");
+                    break;
+                case 4:
+                    output = new XElement("Rechnungszeilen");
                     break;
                 default:
                     break;
@@ -188,6 +202,13 @@ namespace sweWebServer
                             firm.Add(new XElement("ID", reader[0]));
                             firm.Add(new XElement("Name", reader[1]));
                             output.Add(firm);
+                            break;
+                        case 4:
+                            XElement zeile = new XElement("Zeile");
+                            zeile.Add(new XElement("Artikel", reader[0]));
+                            zeile.Add(new XElement("Stk", reader[1]));
+                            zeile.Add(new XElement("Preis", reader[2]));
+                            output.Add(zeile);
                             break;
                         default:
                             break;
