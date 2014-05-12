@@ -124,6 +124,9 @@ namespace sweWebServer
                 case 4:
                     output = new XElement("Rechnungszeilen");
                     break;
+                case 5:
+                    output = new XElement("Rechnungszeilen");
+                    break;
                 default:
                     break;
             }
@@ -209,6 +212,13 @@ namespace sweWebServer
                             zeile.Add(new XElement("Stk", reader[1]));
                             zeile.Add(new XElement("Preis", reader[2]));
                             output.Add(zeile);
+                            break;
+                        case 5:
+                            XElement pers = new XElement("Person");
+                            pers.Add(new XElement("ID", reader[0]));
+                            pers.Add(new XElement("Vorname", reader[1]));
+                            pers.Add(new XElement("Nachname", reader[2]));
+                            output.Add(pers);
                             break;
                         default:
                             break;

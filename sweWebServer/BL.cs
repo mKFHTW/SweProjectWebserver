@@ -104,6 +104,47 @@ WHERE A.UID LIKE @uid";
 FROM Rechnungen JOIN Kontaktdaten ON Rechnungen.fkZuKontaktID = Kontaktdaten.ID WHERE Kontaktdaten.Nachname LIKE @name OR Kontaktdaten.Vorname LIKE @name";
                        cmd.Parameters.AddWithValue("@name", "%" + type.FirstChild.InnerText + "%"); 
                     }
+
+                    else
+                    {
+                        statement = @"Select Rechnungen.ID, Kontaktdaten.Nachname, Rechnungen.fkZuKontaktID, Rechnungen.Datum, Rechnungen.Faelligkeit, Rechnungen.Kommentar, Rechnungen.Nachricht
+FROM Rechnungen JOIN Kontaktdaten ON Rechnungen.fkZuKontaktID = Kontaktdaten.ID WHERE ";
+                        XmlNodeList xnList = type.ChildNodes;
+
+                        foreach (XmlNode item in xnList)
+                        {
+                            switch (item.Name)
+                            {   
+                                case "Name":
+                                    statement += "Kontaktdaten.Nachname LIKE @name OR Kontaktdaten.Vorname LIKE @name";
+                       cmd.Parameters.AddWithValue("@name", "%" + item.InnerText + "%"); 
+                                    break;
+                                case "DateVon":
+                                    statement += "Rechnungen.Datum >= @datevon AND ";
+                       cmd.Parameters.AddWithValue("@datevon", Convert.ToDateTime(item.InnerText));
+                                    break;
+                                case "DateBis":
+                                    statement += "Rechnungen.Faelligkeit <= @datebis";
+                       cmd.Parameters.AddWithValue("@datebis", Convert.ToDateTime(item.InnerText));
+                                    break;
+                                case "BetragVon":
+                                    statement = @"Select Rechnungen.ID, Kontaktdaten.Nachname, Rechnungen.fkZuKontaktID, Rechnungen.Datum, Rechnungen.Faelligkeit, Rechnungen.Kommentar, Rechnungen.Nachricht
+FROM Rechnungen 
+JOIN Kontaktdaten ON Rechnungen.fkZuKontaktID = Kontaktdaten.ID
+WHERE (SELECT SUM(Rechnungszeilen.Menge * Rechnungszeilen.Stückpreis)
+FROM Rechnungszeilen 
+WHERE Rechnungen.ID = Rechnungszeilen.fkZuRechnungenID
+GROUP by Rechnungszeilen.fkZuRechnungenID) BETWEEN @betragvon AND @betragbis";
+                                    cmd.Parameters.AddWithValue("@betragvon", Convert.ToDouble(item.InnerText));
+                                    break;
+                                case "BetragBis":
+                                    cmd.Parameters.AddWithValue("@betragbis", Convert.ToDouble(item.InnerText));
+                                    break;
+                                default:
+                                    break;
+                            }   
+                        }                        
+                    }
                 }
 
                 else if (type.Name == "Firmen")
@@ -117,6 +158,12 @@ FROM Rechnungen JOIN Kontaktdaten ON Rechnungen.fkZuKontaktID = Kontaktdaten.ID 
                     searchType = 4;
                     statement = "SELECT Artikel, Menge, Stückpreis FROM Rechnungszeilen WHERE fkZuRechnungenID = @id";
                     cmd.Parameters.AddWithValue("@id", type.FirstChild.InnerText);                     
+                }
+
+                else if (type.Name == "Personen")
+                {
+                    searchType = 5;
+                    statement = "SELECT ID, Vorname, Nachname FROM Kontaktdaten WHERE Deleted = 0 AND Vorname IS NOT NULL";                   
                 }
 
                 cmd.CommandText = statement;
