@@ -205,10 +205,45 @@ UID = @uid";*/
                     //cmd.Parameters.AddWithValue("@id", Convert.ToInt32(xnList[0].InnerText));
                 }
 
-                access.BeginTransaction();
-                cmd.CommandText = statement;
-                access.insert(cmd);
-                access.CommitTr();
+                else if (type.Name == "Rechnung")
+                {
+                    XmlNodeList xnList = type.ChildNodes;
+                    statement = @"INSERT INTO Rechnungen (fkZuKontaktID, Datum, Faelligkeit, Kommentar, Nachricht)
+VALUES (@fk, @datum, @due, @kommentar, @nachricht)";
+                    
+                    cmd.Parameters.AddWithValue("@fk", xnList[0].InnerText);
+                    cmd.Parameters.AddWithValue("@datum", xnList[1].InnerText);
+                    cmd.Parameters.AddWithValue("@due", xnList[2].InnerText);
+                    cmd.Parameters.AddWithValue("@kommentar", xnList[3].InnerText);
+                    cmd.Parameters.AddWithValue("@nachricht", xnList[4].InnerText);
+
+                    access.BeginTransaction();
+                    cmd.CommandText = statement;
+                    access.insert(cmd);
+
+                    foreach (XmlNode item in xnList)
+                    {
+                        if(item.Name == "Zeile")
+                        { 
+                            statement = @"INSERT INTO Rechnungszeilen (fkZuRechnungenID, Artikel, Menge, Stückpreis, Ust)
+VALUES ((SELECT IDENT_CURRENT(‘Rechnungen’) , @artikel, @menge, @preis, 20)";
+                            cmd.Parameters.AddWithValue("@artiel", item.ChildNodes[0].InnerText);
+                            cmd.Parameters.AddWithValue("@menge", item.ChildNodes[1].InnerText);
+                            cmd.Parameters.AddWithValue("@preis", item.ChildNodes[2].InnerText);
+
+                            cmd.CommandText = statement;
+                            access.insert(cmd);
+                        }                        
+                    }
+
+                    access.CommitTr();                    
+                }
+
+                if (type.Name != "Rechnung")
+                { 
+                    cmd.CommandText = statement;
+                    access.insert(cmd);
+                }
             }
             else if (root.Name == "Update")
             {
