@@ -204,8 +204,11 @@ UID = @uid";*/
                     cmd.Parameters.AddWithValue("@uid", xnList[2].InnerText);
                     //cmd.Parameters.AddWithValue("@id", Convert.ToInt32(xnList[0].InnerText));
                 }
+
+                access.BeginTransaction();
                 cmd.CommandText = statement;
                 access.insert(cmd);
+                access.CommitTr();
             }
             else if (root.Name == "Update")
             {

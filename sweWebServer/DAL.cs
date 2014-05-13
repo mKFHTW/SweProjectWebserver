@@ -14,14 +14,29 @@ namespace sweWebServer
         SqlConnection connection;
         XmlDocument xml;
         SqlCommand cmd;
+        SqlTransaction tx;
         string statement;       
 
         public DAL()
         {
-            xml = new XmlDocument();            
+            xml = new XmlDocument();
 
-            if (openConnection())
-                openConnection();
+            openConnection();
+                
+        }
+        public void BeginTransaction()
+        {
+            tx = connection.BeginTransaction();
+        }
+
+        public void CommitTr()
+        {
+            tx.Commit();
+        }
+
+        public void RollBackTr()
+        {
+            tx.Rollback();
         }
 
         public bool openConnection()
@@ -64,6 +79,7 @@ namespace sweWebServer
             try
             {
                 command.Connection = connection;
+                command.Transaction = tx;
                 command.ExecuteNonQuery();
                 return true;
             }
@@ -78,6 +94,7 @@ namespace sweWebServer
             try
             {
                 command.Connection = connection;
+                command.Transaction = tx;
                 command.ExecuteNonQuery();
                 return true;
             }
@@ -92,6 +109,7 @@ namespace sweWebServer
             try
             {
                 command.Connection = connection;
+                command.Transaction = tx;
                 command.ExecuteNonQuery();
                 return true;
             }
@@ -104,6 +122,7 @@ namespace sweWebServer
         public string select(SqlCommand command, int type)
         {
             command.Connection = connection;
+            command.Transaction = tx;
             SqlDataReader reader = command.ExecuteReader();
             XElement output = null;
 
