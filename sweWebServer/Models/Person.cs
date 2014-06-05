@@ -10,5 +10,10 @@ namespace sweWebServer.Models
     {
         public string Vorname { get; set; }
         public string Nachname { get; set; }
+        public string Titel { get; set; }
+        public string Suffix { get; set; }
+        public string Firm { get; set; }
+        public string FirmaID { get; set; }
+        public DateTime GebDatum { get; set; }
     }
 }

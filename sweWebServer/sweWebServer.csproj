@@ -46,6 +46,7 @@
     <Compile Include="HTTPHeader.cs" />
     <Compile Include="HttpProcessor.cs" />
     <Compile Include="IPlugins.cs" />
+    <Compile Include="MockDAL.cs" />
     <Compile Include="Models\Firma.cs" />
     <Compile Include="Models\Kontakt.cs" />
     <Compile Include="Models\Person.cs" />

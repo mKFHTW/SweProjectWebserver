@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Data.SqlClient;
 using System.Xml;
 using System.Xml.Linq;
+using System.Configuration;
 
 namespace sweWebServer
 {
@@ -43,10 +44,7 @@ namespace sweWebServer
         {
             try
             {
-                connection = new SqlConnection(
-                    @"Data Source=.\SQLExpress;
-                    Initial Catalog=SweDB;
-                    Integrated Security=true;");
+                connection = new SqlConnection(ConfigurationSettings.AppSettings["Server"]);
 
                 connection.Open();
                 cmd = new SqlCommand(statement, connection);
@@ -58,7 +56,7 @@ namespace sweWebServer
             }
         }
 
-        public string testtest(string data)
+        public string dummyFirma(string data)
         {
             //xml.LoadXml(data);
 
@@ -71,6 +69,40 @@ namespace sweWebServer
                     new XElement("Name", obj.Name),
                     new XElement("UID", obj.UID)
                     );
+            return output.ToString();
+        }        
+
+        public string dummyPerson(string data)
+        {
+            //xml.LoadXml(data);
+
+            Models.Person obj = new Models.Person();
+            obj.Vorname = "Muris";
+            obj.Nachname = "Kavlak";
+
+            XElement output = new XElement("Personen");
+            XElement person = new XElement("Person",
+                    new XElement("Vorname", obj.Vorname),
+                    new XElement("Nachname", obj.Nachname)
+                    );
+            output.Add(person);
+            return output.ToString();
+        }
+
+        public string dummyRechnung(string data)
+        {
+            //xml.LoadXml(data);
+
+            Models.Firma obj = new Models.Firma();
+            obj.Name = "Microsoft";
+            obj.UID = "ATU1278";
+
+            XElement output = new XElement("Firmen");
+            XElement firma = new XElement("Firma",
+                    new XElement("Name", obj.Name),
+                    new XElement("UID", obj.UID)
+                    );
+            output.Add(firma);
             return output.ToString();
         }
 
@@ -178,8 +210,8 @@ namespace sweWebServer
                                 person.Add(new XElement("LieferPLZ", reader[12]));
                                 if (reader[13] != "NULL") 
                                 person.Add(new XElement("LieferOrt", reader[13]));
-                                if (reader[14] != "NULL") 
-                                person.Add(new XElement("Geburtsdatum", reader[14]));
+                                if (reader[14] != "NULL")
+                                    person.Add(new XElement("Geburtsdatum", Convert.ToDateTime(reader[14]).ToString("dd/MM/yyyy")));
                                 if (reader[15] != "NULL") 
                                 person.Add(new XElement("Firma", reader[15]));
                                 if (reader[16] != "NULL") 
@@ -213,8 +245,8 @@ namespace sweWebServer
                             rechnung.Add(new XElement("ID", reader[0]));
                             rechnung.Add(new XElement("Kundenname", reader[1]));
                             rechnung.Add(new XElement("KundenID", reader[2]));
-                            rechnung.Add(new XElement("Date", reader[3]));
-                            rechnung.Add(new XElement("Due", reader[4]));
+                            rechnung.Add(new XElement("Date", Convert.ToDateTime(reader[3]).ToString("dd/MM/yyyy")));
+                            rechnung.Add(new XElement("Due", Convert.ToDateTime(reader[4]).ToString("dd/MM/yyyy")));
                             rechnung.Add(new XElement("Kommentar", reader[5]));
                             rechnung.Add(new XElement("Nachricht", reader[6]));
                             output.Add(rechnung);
